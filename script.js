@@ -4,16 +4,17 @@ const feedbackElement = document.getElementById('feedback');
 const keyboardElement = document.getElementById('keyboard');
 
 const keyLayout = [
-    ['`', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '=', 'Backspace'],
-    ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '[', ']', '\\'],
-    ['CapsLock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', "'", 'Enter'],
-    ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', 'Shift'],
+    ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
+    ['Tab', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', '@', '[', 'Enter'],
+    ['CapsLock', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';', ':', ']', 'Shift'],
+    ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '_', '無変換', '変換', 'カタカナ/ひらがな'],
     ['Space']
 ];
 
 let currentCharacter = '';
 
 function createKeyboard() {
+    keyboardElement.innerHTML = ''; // Clear existing keyboard
     keyLayout.forEach(row => {
         row.forEach(key => {
             const keyElement = document.createElement('div');
@@ -22,6 +23,10 @@ function createKeyboard() {
             keyElement.dataset.key = key;
             if (key === 'Space') {
                 keyElement.style.gridColumn = 'span 5';
+            } else if (key === 'Enter') {
+                keyElement.style.gridColumn = 'span 2';
+            } else if (key === 'Shift' && row.includes('z')) {
+                keyElement.style.gridColumn = 'span 2';
             }
             keyboardElement.appendChild(keyElement);
         });

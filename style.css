@@ -30,7 +30,7 @@ body {
 
 #keyboard {
     display: grid;
-    grid-template-columns: repeat(15, 1fr);
+    grid-template-columns: repeat(16, 1fr);
     grid-gap: 5px;
     margin-top: 30px;
 }
