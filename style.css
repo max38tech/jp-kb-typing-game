@@ -27,3 +27,23 @@ body {
     margin-top: 20px;
     font-size: 1.2em;
 }
+
+#keyboard {
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-gap: 5px;
+    margin-top: 30px;
+}
+
+.key {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.2em;
+}
+
+.key.active {
+    background-color: #a0e0a0;
+}
