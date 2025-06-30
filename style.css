@@ -32,7 +32,7 @@ body {
 }
 
 .exploding {
-    animation: explode 0.3s ease-out forwards;
+    animation: explode 0.15s ease-out forwards;
 }
 
 @keyframes fall {

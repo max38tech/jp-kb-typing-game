@@ -4,11 +4,9 @@ const toggleKeyboardButton = document.getElementById('toggle-keyboard');
 const colorSelector = document.getElementById('color-selector');
 const modeSelector = document.getElementById('game-mode');
 const customCharsInput = document.getElementById('custom-chars');
-const speedSelector = document.getElementById('game-speed');
 const pauseBtn = document.getElementById('pause-btn');
 const pauseOverlay = document.getElementById('pause-overlay');
 const uiWrapper = document.getElementById('ui-wrapper');
-const uiToggleBtn = document.getElementById('ui-toggle-btn');
 const shiftToggleBtn = document.getElementById('shift-toggle-btn');
 const townArea = document.getElementById('town-area');
 const healthBar = document.getElementById('health-bar');
@@ -18,11 +16,19 @@ const restartBtn = document.getElementById('restart-btn');
 // Game State
 let activeChars = [];
 let score = 0;
-let spawnInterval;
+let gameLoopInterval;
 let isPaused = false;
 let isShiftMode = false;
 let health = 100;
 let isGameOver = false;
+let gameStartTime;
+
+// Difficulty Settings
+const DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+const START_SPAWN_RATE = 2000; // ms
+const END_SPAWN_RATE = 500; // ms
+const START_FALL_SPEED = 10; // seconds
+const END_FALL_SPEED = 3; // seconds
 
 const keyLayout = [
     ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
@@ -94,7 +100,7 @@ function updateHealthBar() {
 
 function gameOver() {
     isGameOver = true;
-    clearInterval(spawnInterval);
+    clearInterval(gameLoopInterval);
     gameOverOverlay.classList.remove('hidden');
     document.querySelectorAll('.falling-char').forEach(el => el.remove());
 }
@@ -107,14 +113,27 @@ function restartGame() {
     updateHealthBar();
     gameOverOverlay.classList.add('hidden');
     document.querySelectorAll('.falling-char').forEach(el => el.remove());
-    updateGameSpeed();
+    startGame();
 }
 
-function spawnCharacter() {
+function gameLoop() {
     if (isPaused || isGameOver) return;
 
+    const elapsedTime = Date.now() - gameStartTime;
+    const progress = Math.min(elapsedTime / DURATION, 1);
+
+    // Update spawn rate
+    const currentSpawnRate = START_SPAWN_RATE - (START_SPAWN_RATE - END_SPAWN_RATE) * progress;
+    
+    // This logic needs to be smarter to avoid overwhelming the player
+    if (Math.random() < (1000 / currentSpawnRate) / 60) { // Simplified spawn chance
+        spawnCharacter(progress);
+    }
+}
+
+function spawnCharacter(progress) {
     const currentMode = modeSelector.value;
-    let characterSet = [...charSets[currentMode]]; // Create a mutable copy
+    let characterSet = [...charSets[currentMode]];
 
     if (currentMode === 'custom') {
         characterSet = customCharsInput.value.split('');
@@ -123,7 +142,7 @@ function spawnCharacter() {
     if (isShiftMode) {
         const shiftedChars = charSets[currentMode]
             .map(key => shiftMap[key])
-            .filter(Boolean); // Filter out undefined values
+            .filter(Boolean);
         characterSet.push(...shiftedChars);
     }
 
@@ -134,7 +153,9 @@ function spawnCharacter() {
     charElement.classList.add('falling-char');
     charElement.textContent = character;
     charElement.style.left = `${Math.random() * 95}%`;
-    charElement.style.animationDuration = `${(Math.random() * 2) + 3}s`;
+    
+    const currentFallSpeed = START_FALL_SPEED - (START_FALL_SPEED - END_FALL_SPEED) * progress;
+    charElement.style.animationDuration = `${currentFallSpeed}s`;
 
     charElement.addEventListener('animationend', () => {
         charElement.remove();
@@ -158,13 +179,13 @@ function handleKeyPress(key, shiftKey) {
 
         // Freeze the character in place for the explosion
         const rect = target.element.getBoundingClientRect();
-        target.element.style.animation = 'none'; // Stop the fall
+        // By setting the top/left, we stop the visual movement from the 'fall' animation
         target.element.style.top = `${rect.top}px`;
         target.element.style.left = `${rect.left}px`;
-        target.element.style.transform = 'none'; // Reset any existing transform
-
-        // Trigger the explosion
+        
+        // By adding the 'exploding' class, the new animation properties override the 'fall' animation
         target.element.classList.add('exploding');
+        
         target.element.addEventListener('animationend', () => {
             target.element.remove();
         });
@@ -252,7 +273,7 @@ shiftToggleBtn.addEventListener('click', () => {
     activeChars = [];
 });
 
-restartBtn.addEventListener('click', restartGame);
+restartBtn.addEventListener('click', startGame);
 
 modeSelector.addEventListener('change', (e) => {
     if (e.target.value === 'custom') {
@@ -265,14 +286,70 @@ modeSelector.addEventListener('change', (e) => {
     activeChars = [];
 });
 
-function updateGameSpeed() {
-    clearInterval(spawnInterval);
-    const speed = parseInt(speedSelector.value, 10);
-    spawnInterval = setInterval(spawnCharacter, speed);
+function startGame() {
+    gameStartTime = Date.now();
+    isGameOver = false;
+    health = 100;
+    score = 0;
+    activeChars = [];
+    updateHealthBar();
+    gameOverOverlay.classList.add('hidden');
+    document.querySelectorAll('.falling-char').forEach(el => el.remove());
+    
+    clearInterval(gameLoopInterval);
+    gameLoopInterval = setInterval(gameLoop, 1000 / 60); // Run game loop at 60fps
 }
 
-speedSelector.addEventListener('change', updateGameSpeed);
-pauseBtn.addEventListener('click', togglePause);
+// --- UI Event Listeners ---
+toggleKeyboardButton.addEventListener('click', () => {
+    keyboardElement.classList.toggle('hidden');
+    townArea.classList.toggle('hidden', !keyboardElement.classList.contains('hidden'));
+    updateHealthBar(); // Update visual state on toggle
+});
+
+colorSelector.addEventListener('change', (e) => {
+    document.body.style.color = e.target.value;
+});
+
+colorSelector.addEventListener('click', (e) => {
+    if (e.target.classList.contains('color-btn')) {
+        const newColor = e.target.dataset.color;
+        document.body.style.color = newColor;
+        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+    }
+});
+
+uiToggleBtn.addEventListener('click', () => {
+    uiWrapper.classList.toggle('hidden');
+    if (uiWrapper.classList.contains('hidden')) {
+        uiToggleBtn.innerHTML = '&raquo;'; // Show "open" icon
+    } else {
+        uiToggleBtn.innerHTML = '&laquo;'; // Show "close" icon
+    }
+});
+
+shiftToggleBtn.addEventListener('click', () => {
+    isShiftMode = !isShiftMode;
+    shiftToggleBtn.textContent = `Shift: ${isShiftMode ? 'On' : 'Off'}`;
+    shiftToggleBtn.classList.toggle('active', isShiftMode);
+    // Clear existing characters when mode changes
+    activeChars.forEach(c => c.element.remove());
+    activeChars = [];
+});
+
+restartBtn.addEventListener('click', startGame);
+
+modeSelector.addEventListener('change', (e) => {
+    if (e.target.value === 'custom') {
+        customCharsInput.style.display = 'inline-block';
+    } else {
+        customCharsInput.style.display = 'none';
+    }
+    // Clear existing characters when mode changes
+    activeChars.forEach(c => c.element.remove());
+    activeChars = [];
+});
 
 // Global keydown listener
 document.addEventListener('keydown', (e) => {
@@ -290,5 +367,5 @@ document.addEventListener('keyup', () => {
 
 // --- Initialization ---
 createKeyboard();
-updateGameSpeed();
+startGame();
 updateHealthBar();
