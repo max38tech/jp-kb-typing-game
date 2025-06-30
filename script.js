@@ -136,9 +136,9 @@ colorSelector.addEventListener('click', (e) => {
 uiToggleBtn.addEventListener('click', () => {
     uiWrapper.classList.toggle('hidden');
     if (uiWrapper.classList.contains('hidden')) {
-        uiToggleBtn.innerHTML = '&raquo;';
+        uiToggleBtn.innerHTML = '&raquo;'; // Show "open" icon
     } else {
-        uiToggleBtn.innerHTML = '&laquo;';
+        uiToggleBtn.innerHTML = '&laquo;'; // Show "close" icon
     }
 });
 
