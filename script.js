@@ -16,25 +16,30 @@ let currentCharacter = '';
 function createKeyboard() {
     keyboardElement.innerHTML = ''; // Clear existing keyboard
     keyLayout.forEach(row => {
+        const rowElement = document.createElement('div');
+        rowElement.classList.add('keyboard-row');
         row.forEach(key => {
             const keyElement = document.createElement('div');
             keyElement.classList.add('key');
             keyElement.textContent = key;
             keyElement.dataset.key = key;
-            if (key === 'Space') {
-                keyElement.style.gridColumn = 'span 5';
-            } else if (key === 'Enter') {
-                keyElement.style.gridColumn = 'span 2';
-            } else if (key === 'Shift' && row.includes('z')) {
-                keyElement.style.gridColumn = 'span 2';
+
+            // Add specific classes for styling special keys
+            const keyName = key.toLowerCase().replace(/\//g, '').replace(/\\/g, '');
+            if (['backspace', 'tab', 'enter', 'capslock', 'shift', 'space'].includes(keyName)) {
+                keyElement.classList.add(`key-${keyName}`);
+            } else if (key.length > 1) {
+                keyElement.classList.add('key-wide');
             }
-            keyboardElement.appendChild(keyElement);
+
+            rowElement.appendChild(keyElement);
         });
+        keyboardElement.appendChild(rowElement);
     });
 }
 
 function newCharacter() {
-    const allKeys = keyLayout.flat().filter(key => key.length === 1);
+    const allKeys = keyLayout.flat().filter(key => key.length === 1 && !['[', ']', ';', ':', '@', '^', '¥', '_'].includes(key));
     const randomIndex = Math.floor(Math.random() * allKeys.length);
     currentCharacter = allKeys[randomIndex];
     promptElement.textContent = currentCharacter;

@@ -29,20 +29,40 @@ body {
 }
 
 #keyboard {
-    display: grid;
-    grid-template-columns: repeat(16, 1fr);
-    grid-gap: 5px;
     margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.keyboard-row {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 5px;
 }
 
 .key {
     background-color: #fff;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
+    border-radius: 3px;
     text-align: center;
-    font-size: 1.2em;
+    box-sizing: border-box;
+    font-size: 0.9em;
+    padding: 1em 0;
+    margin: 0 2px;
+    flex: 1;
+    min-width: 0; /* Allow keys to shrink */
 }
+
+.key-backspace { flex-grow: 2; }
+.key-tab { flex-grow: 1.5; }
+.key-enter { flex-grow: 2.5; }
+.key-capslock { flex-grow: 1.8; }
+.key-shift { flex-grow: 2.2; }
+.key-space { flex-grow: 8; }
+.key-wide { flex-grow: 1.5; }
+
 
 .key.active {
     background-color: #a0e0a0;
