@@ -22,6 +22,24 @@
             <input type="text" id="input-box" autofocus>
         </div>
         <div id="settings">
+            <div id="mode-selector">
+                <span>Mode:</span>
+                <select id="game-mode">
+                    <option value="all">All</option>
+                    <option value="top-row">Top Row</option>
+                    <option value="right-hand">Right Hand</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="text" id="custom-chars" placeholder="Custom characters" style="display:none;">
+            </div>
+            <div id="speed-selector">
+                <span>Speed:</span>
+                <select id="game-speed">
+                    <option value="1500">Slow</option>
+                    <option value="1000" selected>Medium</option>
+                    <option value="600">Fast</option>
+                </select>
+            </div>
             <button id="toggle-keyboard">Toggle Keyboard</button>
             <div id="color-selector">
                 <span>Text Color:</span>
