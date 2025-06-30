@@ -48,31 +48,23 @@ body {
 #ui-container {
     padding: 10px;
     background: #1a1a1a;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-top: 1px solid #333;
+    border-bottom: 1px solid #333;
 }
 
 #settings {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     gap: 10px;
 }
 
-#game-controls, #game-options {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-}
-
-#input-box, #game-mode, #game-speed, #custom-chars, #pause-btn {
+#game-mode, #game-speed, #custom-chars, #pause-btn, #toggle-keyboard, #color-selector {
     font-size: 1em;
     background-color: #333;
     border: 1px solid #555;
     color: white;
-    padding: 5px;
+    padding: 8px;
+    border-radius: 5px;
 }
 
 #toggle-keyboard, .color-btn, #pause-btn {
@@ -101,7 +93,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 10;
 }
 
 #pause-overlay.hidden {
@@ -130,20 +121,23 @@ body {
 
 .key {
     background-color: #444;
-    border: 1px solid #666;
+    border: 1px solid #555;
     border-radius: 5px;
     text-align: center;
-    padding: 10px 5px;
+    box-sizing: border-box;
+    font-size: 1em;
+    padding: 0.8em 0;
     margin: 0 3px;
     flex: 1;
-    min-width: 0;
+    min-width: 0; /* Allow keys to shrink */
+    color: #eee;
+    transition: background-color 0.1s;
 }
 
 .key.pressed {
-    background-color: #55aaff;
-    transform: translateY(2px);
+    background-color: #66aaff;
+    transform: scale(0.95);
 }
 
-.key.active {
-    background-color: #a0e0a0;
-}
+.key-backspace { flex-grow: 2; }
+.key-tab { flex-grow: 1.5; }

@@ -1,5 +1,4 @@
 const gameArea = document.getElementById('game-area');
-const inputBox = document.getElementById('input-box');
 const keyboardElement = document.getElementById('keyboard');
 const toggleKeyboardButton = document.getElementById('toggle-keyboard');
 const colorSelector = document.getElementById('color-selector');
@@ -77,6 +76,9 @@ function spawnCharacter() {
 }
 
 function handleKeyPress(key) {
+    if (isPaused) return;
+
+    highlightPressedKey(key);
     const typedChar = key.toLowerCase();
     const target = activeChars.find(c => c.char.toLowerCase() === typedChar);
 
@@ -85,6 +87,19 @@ function handleKeyPress(key) {
         activeChars = activeChars.filter(c => c.char.toLowerCase() !== typedChar);
         score++;
         // Optional: Update score display
+    }
+}
+
+function togglePause() {
+    isPaused = !isPaused;
+    pauseOverlay.classList.toggle('hidden', !isPaused);
+    pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+    if (isPaused) {
+        // Pause animations
+        document.querySelectorAll('.falling-char').forEach(el => el.style.animationPlayState = 'paused');
+    } else {
+        // Resume animations
+        document.querySelectorAll('.falling-char').forEach(el => el.style.animationPlayState = 'running');
     }
 }
 
@@ -103,13 +118,8 @@ toggleKeyboardButton.addEventListener('click', () => {
     keyboardElement.classList.toggle('hidden');
 });
 
-colorSelector.addEventListener('click', (e) => {
-    if (e.target.classList.contains('color-btn')) {
-        const newColor = e.target.dataset.color;
-        document.body.style.color = newColor;
-        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-    }
+colorSelector.addEventListener('change', (e) => {
+    document.body.style.color = e.target.value;
 });
 
 modeSelector.addEventListener('change', (e) => {
@@ -130,32 +140,23 @@ function updateGameSpeed() {
 }
 
 speedSelector.addEventListener('change', updateGameSpeed);
-
-pauseBtn.addEventListener('click', () => {
-    isPaused = !isPaused;
-    pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
-    pauseOverlay.classList.toggle('hidden', !isPaused);
-});
+pauseBtn.addEventListener('click', togglePause);
 
 // Global keydown listener
 document.addEventListener('keydown', (e) => {
-    // Prevent typing in the input box from triggering the global listener
-    if (e.target === inputBox || e.target === customCharsInput) {
+    // Don't handle key presses if user is typing in the custom input
+    if (e.target === customCharsInput) {
         return;
     }
-    // Allow pausing even when typing in the custom input
-    if (e.key.toLowerCase() === 'escape') {
-        pauseBtn.click();
+    // Allow pausing even when typing in inputs
+    if (e.key === 'Escape') {
+        togglePause();
     }
-
-    if (isPaused) return;
-
     handleKeyPress(e.key);
-    highlightPressedKey(e.key);
 });
 
 // --- Initialization ---
 createKeyboard();
 updateGameSpeed(); // Start with the default speed
-inputBox.style.display = 'none'; // Hide the old input box
+document.getElementById('input-box').style.display = 'none'; // Hide the old input box
 document.getElementById('prompt-text').style.display = 'none'; // Hide the prompt
