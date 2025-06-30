@@ -46,9 +46,14 @@ body {
 }
 
 #ui-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     padding: 10px;
-    background: #1a1a1a;
+    background: red; /* Loud background for debugging */
     border-bottom: 1px solid #333;
+    z-index: 1000; /* Ensure it's on top */
 }
 
 #settings {
