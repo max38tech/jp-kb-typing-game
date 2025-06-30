@@ -278,4 +278,3 @@ document.addEventListener('keyup', () => {
 createKeyboard();
 updateGameSpeed();
 updateHealthBar();
-townArea.classList.add('hidden'); // Start with town hidden, keyboard shown

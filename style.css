@@ -155,6 +155,10 @@ body {
     text-align: center;
 }
 
+.hidden {
+    display: none !important;
+}
+
 #restart-btn {
     font-size: 1.2em;
     padding: 10px 20px;
