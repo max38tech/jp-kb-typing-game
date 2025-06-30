@@ -155,10 +155,20 @@ function handleKeyPress(key, shiftKey) {
 
     if (targetIndex !== -1) {
         const target = activeChars[targetIndex];
+
+        // Freeze the character in place for the explosion
+        const rect = target.element.getBoundingClientRect();
+        target.element.style.animation = 'none'; // Stop the fall
+        target.element.style.top = `${rect.top}px`;
+        target.element.style.left = `${rect.left}px`;
+        target.element.style.transform = 'none'; // Reset any existing transform
+
+        // Trigger the explosion
         target.element.classList.add('exploding');
         target.element.addEventListener('animationend', () => {
             target.element.remove();
         });
+
         activeChars.splice(targetIndex, 1);
         score++;
         // Optional: Update score display
