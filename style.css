@@ -94,6 +94,11 @@ body {
     border-radius: 5px;
 }
 
+#shift-toggle-btn.active {
+    background-color: #4a6a9d; /* A slightly lighter blue */
+    border-color: #6a8ac0;
+}
+
 #toggle-keyboard, .color-btn, #pause-btn {
     margin-left: 10px;
     padding: 5px 10px;

@@ -9,12 +9,14 @@ const pauseBtn = document.getElementById('pause-btn');
 const pauseOverlay = document.getElementById('pause-overlay');
 const uiWrapper = document.getElementById('ui-wrapper');
 const uiToggleBtn = document.getElementById('ui-toggle-btn');
+const shiftToggleBtn = document.getElementById('shift-toggle-btn');
 
 // Game State
 let activeChars = [];
 let score = 0;
 let spawnInterval;
 let isPaused = false;
+let isShiftMode = false;
 
 const keyLayout = [
     ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
@@ -23,6 +25,17 @@ const keyLayout = [
     ['Shift', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/', '_', '無変換', '変換', 'カタカナ/ひらがな'],
     ['Space']
 ];
+
+const shiftMap = {
+    '1': '!', '2': '"', '3': '#', '4': '$', '5': '%', '6': '&', '7': "'", '8': '(', '9': ')',
+    '-': '=', '^': '~', '¥': '|',
+    'q': 'Q', 'w': 'W', 'e': 'E', 'r': 'R', 't': 'T', 'y': 'Y', 'u': 'U', 'i': 'I', 'o': 'O', 'p': 'P',
+    '@': '`', '[': '{',
+    'a': 'A', 's': 'S', 'd': 'D', 'f': 'F', 'g': 'G', 'h': 'H', 'j': 'J', 'k': 'K', 'l': 'L',
+    ';': '+', ':': '*', ']': '}',
+    'z': 'Z', 'x': 'X', 'c': 'C', 'v': 'V', 'b': 'B', 'n': 'N', 'm': 'M',
+    ',': '<', '.': '>', '/': '?', '_': '_'
+};
 
 const charSets = {
     all: keyLayout.flat().filter(k => k.length === 1),
@@ -53,10 +66,17 @@ function spawnCharacter() {
     if (isPaused) return;
 
     const currentMode = modeSelector.value;
-    let characterSet = charSets[currentMode];
+    let characterSet = [...charSets[currentMode]]; // Create a mutable copy
 
     if (currentMode === 'custom') {
         characterSet = customCharsInput.value.split('');
+    }
+
+    if (isShiftMode) {
+        const shiftedChars = charSets[currentMode]
+            .map(key => shiftMap[key])
+            .filter(Boolean); // Filter out undefined values
+        characterSet.push(...shiftedChars);
     }
 
     if (characterSet.length === 0) return;
@@ -77,16 +97,17 @@ function spawnCharacter() {
     gameArea.appendChild(charElement);
 }
 
-function handleKeyPress(key) {
+function handleKeyPress(key, shiftKey) {
     if (isPaused) return;
 
-    highlightPressedKey(key);
-    const typedChar = key.toLowerCase();
-    const target = activeChars.find(c => c.char.toLowerCase() === typedChar);
+    const targetChar = shiftKey ? key.toUpperCase() : key.toLowerCase();
+    highlightPressedKey(targetChar, shiftKey);
+
+    const target = activeChars.find(c => c.char === targetChar);
 
     if (target) {
         target.element.remove();
-        activeChars = activeChars.filter(c => c.char.toLowerCase() !== typedChar);
+        activeChars = activeChars.filter(c => c.char !== targetChar);
         score++;
         // Optional: Update score display
     }
@@ -105,14 +126,30 @@ function togglePause() {
     }
 }
 
-function highlightPressedKey(key) {
-    const keyElement = document.querySelector(`.key[data-key='${key.toLowerCase()}']`);
-    if (keyElement) {
-        keyElement.classList.add('pressed');
-        setTimeout(() => {
-            keyElement.classList.remove('pressed');
-        }, 200);
+function highlightPressedKey(key, shiftKey) {
+    const keyElements = document.querySelectorAll('.key');
+    const keyToFind = Object.keys(shiftMap).find(k => shiftMap[k] === key) || key.toLowerCase();
+
+    keyElements.forEach(el => {
+        const elKey = el.dataset.key.toLowerCase();
+        if (elKey === keyToFind) {
+            el.classList.add('pressed');
+        } else {
+            el.classList.remove('pressed');
+        }
+    });
+
+    // Highlight shift keys if needed
+    const shiftKeys = document.querySelectorAll('[data-key="shift"]');
+    if (shiftKey) {
+        shiftKeys.forEach(sk => sk.classList.add('pressed'));
+    } else {
+        shiftKeys.forEach(sk => sk.classList.remove('pressed'));
     }
+}
+
+function clearHighlights() {
+    document.querySelectorAll('.key.pressed').forEach(el => el.classList.remove('pressed'));
 }
 
 // --- UI Event Listeners ---
@@ -142,6 +179,15 @@ uiToggleBtn.addEventListener('click', () => {
     }
 });
 
+shiftToggleBtn.addEventListener('click', () => {
+    isShiftMode = !isShiftMode;
+    shiftToggleBtn.textContent = `Shift: ${isShiftMode ? 'On' : 'Off'}`;
+    shiftToggleBtn.classList.toggle('active', isShiftMode);
+    // Clear existing characters when mode changes
+    activeChars.forEach(c => c.element.remove());
+    activeChars = [];
+});
+
 modeSelector.addEventListener('change', (e) => {
     if (e.target.value === 'custom') {
         customCharsInput.style.display = 'inline-block';
@@ -164,15 +210,16 @@ pauseBtn.addEventListener('click', togglePause);
 
 // Global keydown listener
 document.addEventListener('keydown', (e) => {
-    // Don't handle key presses if user is typing in the custom input
+    // Prevent typing in the input box from triggering the global listener
     if (e.target === customCharsInput) {
         return;
     }
-    // Allow pausing even when typing in inputs
-    if (e.key === 'Escape') {
-        togglePause();
-    }
-    handleKeyPress(e.key);
+    e.preventDefault(); // Prevent default browser actions
+    handleKeyPress(e.key, e.shiftKey);
+});
+
+document.addEventListener('keyup', () => {
+    clearHighlights();
 });
 
 // --- Initialization ---
