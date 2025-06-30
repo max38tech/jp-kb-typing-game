@@ -11,8 +11,11 @@
         <div id="game-area">
             <!-- Falling characters will be added here by JavaScript -->
         </div>
-        <div id="town-area">
-            <!-- This can be styled to look like a town later -->
+        <div id="bottom-area">
+            <div id="health-bar-container">
+                <div id="health-bar"></div>
+            </div>
+            <div id="town-area"></div>
         </div>
     </div>
 
@@ -45,9 +48,16 @@
         <button id="ui-toggle-btn">&laquo;</button>
     </div>
 
+    <div id="game-over-overlay" class="hidden">
+        <div id="game-over-box">
+            <h1>Game Over</h1>
+            <button id="restart-btn">Restart</button>
+        </div>
+    </div>
+
     <div id="pause-overlay" class="hidden">Paused</div>
 
-    <div id="keyboard"></div>
+    <div id="keyboard" class="hidden"></div>
 
     <script src="script.js"></script>
 </body>

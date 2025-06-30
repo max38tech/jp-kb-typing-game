@@ -10,6 +10,10 @@ const pauseOverlay = document.getElementById('pause-overlay');
 const uiWrapper = document.getElementById('ui-wrapper');
 const uiToggleBtn = document.getElementById('ui-toggle-btn');
 const shiftToggleBtn = document.getElementById('shift-toggle-btn');
+const townArea = document.getElementById('town-area');
+const healthBar = document.getElementById('health-bar');
+const gameOverOverlay = document.getElementById('game-over-overlay');
+const restartBtn = document.getElementById('restart-btn');
 
 // Game State
 let activeChars = [];
@@ -17,6 +21,8 @@ let score = 0;
 let spawnInterval;
 let isPaused = false;
 let isShiftMode = false;
+let health = 100;
+let isGameOver = false;
 
 const keyLayout = [
     ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
@@ -62,8 +68,50 @@ function createKeyboard() {
 }
 
 // --- Gameplay Logic ---
+function takeDamage(amount) {
+    if (isGameOver) return;
+    health = Math.max(0, health - amount);
+    updateHealthBar();
+    if (health <= 0) {
+        gameOver();
+    }
+}
+
+function updateHealthBar() {
+    healthBar.style.width = `${health}%`;
+    const healthColor = health > 50 ? '#4caf50' : health > 20 ? '#ffeb3b' : '#f44336';
+    healthBar.style.backgroundColor = healthColor;
+
+    // Visual damage effect
+    if (keyboardElement.classList.contains('hidden')) {
+        // Damage town
+        townArea.style.opacity = health / 100;
+    } else {
+        // Damage keyboard
+        keyboardElement.style.backgroundColor = `rgba(34, 34, 34, ${health / 100})`;
+    }
+}
+
+function gameOver() {
+    isGameOver = true;
+    clearInterval(spawnInterval);
+    gameOverOverlay.classList.remove('hidden');
+    document.querySelectorAll('.falling-char').forEach(el => el.remove());
+}
+
+function restartGame() {
+    isGameOver = false;
+    health = 100;
+    score = 0;
+    activeChars = [];
+    updateHealthBar();
+    gameOverOverlay.classList.add('hidden');
+    document.querySelectorAll('.falling-char').forEach(el => el.remove());
+    updateGameSpeed();
+}
+
 function spawnCharacter() {
-    if (isPaused) return;
+    if (isPaused || isGameOver) return;
 
     const currentMode = modeSelector.value;
     let characterSet = [...charSets[currentMode]]; // Create a mutable copy
@@ -86,11 +134,11 @@ function spawnCharacter() {
     charElement.classList.add('falling-char');
     charElement.textContent = character;
     charElement.style.left = `${Math.random() * 95}%`;
-    charElement.style.animationDuration = `${(Math.random() * 2) + 3}s`; // Adjusted for speed
+    charElement.style.animationDuration = `${(Math.random() * 2) + 3}s`;
 
     charElement.addEventListener('animationend', () => {
         charElement.remove();
-        // Optional: Penalize for missed characters
+        takeDamage(10); // Take 10 damage when a character is missed
     });
 
     activeChars.push({ element: charElement, char: character });
@@ -98,7 +146,7 @@ function spawnCharacter() {
 }
 
 function handleKeyPress(key, shiftKey) {
-    if (isPaused) return;
+    if (isPaused || isGameOver) return;
 
     const targetChar = shiftKey ? key.toUpperCase() : key.toLowerCase();
     highlightPressedKey(targetChar, shiftKey);
@@ -155,6 +203,8 @@ function clearHighlights() {
 // --- UI Event Listeners ---
 toggleKeyboardButton.addEventListener('click', () => {
     keyboardElement.classList.toggle('hidden');
+    townArea.classList.toggle('hidden', !keyboardElement.classList.contains('hidden'));
+    updateHealthBar(); // Update visual state on toggle
 });
 
 colorSelector.addEventListener('change', (e) => {
@@ -187,6 +237,8 @@ shiftToggleBtn.addEventListener('click', () => {
     activeChars.forEach(c => c.element.remove());
     activeChars = [];
 });
+
+restartBtn.addEventListener('click', restartGame);
 
 modeSelector.addEventListener('change', (e) => {
     if (e.target.value === 'custom') {
@@ -224,6 +276,6 @@ document.addEventListener('keyup', () => {
 
 // --- Initialization ---
 createKeyboard();
-updateGameSpeed(); // Start with the default speed
-document.getElementById('input-box').style.display = 'none'; // Hide the old input box
-document.getElementById('prompt-text').style.display = 'none'; // Hide the prompt
+updateGameSpeed();
+updateHealthBar();
+townArea.classList.add('hidden'); // Start with town hidden, keyboard shown
