@@ -7,6 +7,8 @@ const customCharsInput = document.getElementById('custom-chars');
 const speedSelector = document.getElementById('game-speed');
 const pauseBtn = document.getElementById('pause-btn');
 const pauseOverlay = document.getElementById('pause-overlay');
+const uiWrapper = document.getElementById('ui-wrapper');
+const uiToggleBtn = document.getElementById('ui-toggle-btn');
 
 // Game State
 let activeChars = [];
@@ -120,6 +122,24 @@ toggleKeyboardButton.addEventListener('click', () => {
 
 colorSelector.addEventListener('change', (e) => {
     document.body.style.color = e.target.value;
+});
+
+colorSelector.addEventListener('click', (e) => {
+    if (e.target.classList.contains('color-btn')) {
+        const newColor = e.target.dataset.color;
+        document.body.style.color = newColor;
+        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
+    }
+});
+
+uiToggleBtn.addEventListener('click', () => {
+    uiWrapper.classList.toggle('hidden');
+    if (uiWrapper.classList.contains('hidden')) {
+        uiToggleBtn.innerHTML = '&raquo;';
+    } else {
+        uiToggleBtn.innerHTML = '&laquo;';
+    }
 });
 
 modeSelector.addEventListener('change', (e) => {

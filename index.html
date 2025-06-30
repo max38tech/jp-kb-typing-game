@@ -16,29 +16,32 @@
         </div>
     </div>
 
-    <div id="ui-container">
-        <div id="settings">
-            <button id="pause-btn">Pause</button>
-            <select id="game-mode">
-                <option value="all">All</option>
-                <option value="top-row">Top Row</option>
-                <option value="right-hand">Right Hand</option>
-                <option value="custom">Custom</option>
-            </select>
-            <input type="text" id="custom-chars" placeholder="Custom" style="display:none;">
-            <select id="game-speed">
-                <option value="1500">Slow</option>
-                <option value="1000" selected>Medium</option>
-                <option value="600">Fast</option>
-            </select>
-            <button id="toggle-keyboard">Keyboard</button>
-            <select id="color-selector">
-                <option value="white">White</option>
-                <option value="yellow">Yellow</option>
-                <option value="lime">Green</option>
-                <option value="#ff7b7b">Red</option>
-            </select>
+    <div id="ui-wrapper">
+        <div id="ui-container">
+            <div id="settings">
+                <button id="pause-btn">Pause</button>
+                <select id="game-mode">
+                    <option value="all">All</option>
+                    <option value="top-row">Top Row</option>
+                    <option value="right-hand">Right Hand</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="text" id="custom-chars" placeholder="Custom" style="display:none;">
+                <select id="game-speed">
+                    <option value="1500">Slow</option>
+                    <option value="1000" selected>Medium</option>
+                    <option value="600">Fast</option>
+                </select>
+                <button id="toggle-keyboard">Keyboard</button>
+                <select id="color-selector">
+                    <option value="white">White</option>
+                    <option value="yellow">Yellow</option>
+                    <option value="lime">Green</option>
+                    <option value="#ff7b7b">Red</option>
+                </select>
+            </div>
         </div>
+        <button id="ui-toggle-btn">&laquo;</button>
     </div>
 
     <div id="pause-overlay" class="hidden">Paused</div>

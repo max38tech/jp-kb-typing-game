@@ -45,15 +45,35 @@ body {
     border-top: 2px solid #444;
 }
 
-#ui-container {
+#ui-wrapper {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    transition: transform 0.3s ease-in-out;
+}
+
+#ui-container {
     padding: 10px;
-    background: red; /* Loud background for debugging */
+    background: #2a4a7d; /* Medium Blue */
     border-bottom: 1px solid #333;
-    z-index: 1000; /* Ensure it's on top */
+    border-right: 1px solid #333;
+    border-radius: 0 0 10px 0;
+}
+
+#ui-toggle-btn {
+    background: #2a4a7d;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 0 5px 5px 0;
+}
+
+#ui-wrapper.hidden {
+    transform: translateX(-100%);
 }
 
 #settings {
