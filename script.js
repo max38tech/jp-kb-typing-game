@@ -6,11 +6,14 @@ const colorSelector = document.getElementById('color-selector');
 const modeSelector = document.getElementById('game-mode');
 const customCharsInput = document.getElementById('custom-chars');
 const speedSelector = document.getElementById('game-speed');
+const pauseBtn = document.getElementById('pause-btn');
+const pauseOverlay = document.getElementById('pause-overlay');
 
 // Game State
 let activeChars = [];
 let score = 0;
 let spawnInterval;
+let isPaused = false;
 
 const keyLayout = [
     ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
@@ -46,6 +49,8 @@ function createKeyboard() {
 
 // --- Gameplay Logic ---
 function spawnCharacter() {
+    if (isPaused) return;
+
     const currentMode = modeSelector.value;
     let characterSet = charSets[currentMode];
 
@@ -83,6 +88,16 @@ function handleKeyPress(key) {
     }
 }
 
+function highlightPressedKey(key) {
+    const keyElement = document.querySelector(`.key[data-key='${key.toLowerCase()}']`);
+    if (keyElement) {
+        keyElement.classList.add('pressed');
+        setTimeout(() => {
+            keyElement.classList.remove('pressed');
+        }, 200);
+    }
+}
+
 // --- UI Event Listeners ---
 toggleKeyboardButton.addEventListener('click', () => {
     keyboardElement.classList.toggle('hidden');
@@ -116,13 +131,27 @@ function updateGameSpeed() {
 
 speedSelector.addEventListener('change', updateGameSpeed);
 
+pauseBtn.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseBtn.textContent = isPaused ? 'Resume' : 'Pause';
+    pauseOverlay.classList.toggle('hidden', !isPaused);
+});
+
 // Global keydown listener
 document.addEventListener('keydown', (e) => {
     // Prevent typing in the input box from triggering the global listener
     if (e.target === inputBox || e.target === customCharsInput) {
         return;
     }
+    // Allow pausing even when typing in the custom input
+    if (e.key.toLowerCase() === 'escape') {
+        pauseBtn.click();
+    }
+
+    if (isPaused) return;
+
     handleKeyPress(e.key);
+    highlightPressedKey(e.key);
 });
 
 // --- Initialization ---
