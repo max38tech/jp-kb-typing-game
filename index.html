@@ -7,13 +7,34 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Japanese Keyboard Typing Game</h1>
-    <div id="game-container">
-        <div id="prompt"></div>
-        <input type="text" id="input-box" autofocus>
-        <div id="feedback"></div>
+    <div id="game-world">
+        <div id="game-area">
+            <!-- Falling characters will be added here by JavaScript -->
+        </div>
+        <div id="town-area">
+            <!-- This can be styled to look like a town later -->
+        </div>
     </div>
+
+    <div id="ui-container">
+        <div id="input-container">
+            <span id="prompt-text">Type here:</span>
+            <input type="text" id="input-box" autofocus>
+        </div>
+        <div id="settings">
+            <button id="toggle-keyboard">Toggle Keyboard</button>
+            <div id="color-selector">
+                <span>Text Color:</span>
+                <button class="color-btn" data-color="yellow">Yellow</button>
+                <button class="color-btn" data-color="lime">Green</button>
+                <button class="color-btn" data-color="white" class="active">White</button>
+                <button class="color-btn" data-color="#ff7b7b">Red</button>
+            </div>
+        </div>
+    </div>
+
     <div id="keyboard"></div>
+
     <script src="script.js"></script>
 </body>
 </html>

@@ -2,6 +2,13 @@ const promptElement = document.getElementById('prompt');
 const inputBox = document.getElementById('input-box');
 const feedbackElement = document.getElementById('feedback');
 const keyboardElement = document.getElementById('keyboard');
+const gameArea = document.getElementById('game-area');
+const toggleKeyboardButton = document.getElementById('toggle-keyboard');
+const colorSelector = document.getElementById('color-selector');
+
+// Game State
+let activeChars = [];
+let score = 0;
 
 const keyLayout = [
     ['半角/全角', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', '¥', 'Backspace'],
@@ -11,10 +18,9 @@ const keyLayout = [
     ['Space']
 ];
 
-let currentCharacter = '';
-
+// --- Keyboard Generation ---
 function createKeyboard() {
-    keyboardElement.innerHTML = ''; // Clear existing keyboard
+    keyboardElement.innerHTML = '';
     keyLayout.forEach(row => {
         const rowElement = document.createElement('div');
         rowElement.classList.add('keyboard-row');
@@ -22,51 +28,60 @@ function createKeyboard() {
             const keyElement = document.createElement('div');
             keyElement.classList.add('key');
             keyElement.textContent = key;
-            keyElement.dataset.key = key;
-
-            // Add specific classes for styling special keys
-            const keyName = key.toLowerCase().replace(/\//g, '').replace(/\\/g, '');
-            if (['backspace', 'tab', 'enter', 'capslock', 'shift', 'space'].includes(keyName)) {
-                keyElement.classList.add(`key-${keyName}`);
-            } else if (key.length > 1) {
-                keyElement.classList.add('key-wide');
-            }
-
+            keyElement.dataset.key = key.toLowerCase();
             rowElement.appendChild(keyElement);
         });
         keyboardElement.appendChild(rowElement);
     });
 }
 
-function newCharacter() {
-    const allKeys = keyLayout.flat().filter(key => key.length === 1 && !['[', ']', ';', ':', '@', '^', '¥', '_'].includes(key));
-    const randomIndex = Math.floor(Math.random() * allKeys.length);
-    currentCharacter = allKeys[randomIndex];
-    promptElement.textContent = currentCharacter;
-    highlightKey(currentCharacter);
-}
+// --- Gameplay Logic ---
+function spawnCharacter() {
+    const character = 'abcdefghijklmnopqrstuvwxyz'[Math.floor(Math.random() * 26)];
+    const charElement = document.createElement('div');
+    charElement.classList.add('falling-char');
+    charElement.textContent = character;
+    charElement.style.left = `${Math.random() * 95}%`;
+    charElement.style.animationDuration = `${(Math.random() * 5) + 5}s`; // Fall speed
 
-function highlightKey(key) {
-    const keyElements = document.querySelectorAll('.key');
-    keyElements.forEach(el => {
-        if (el.dataset.key.toLowerCase() === key.toLowerCase()) {
-            el.classList.add('active');
-        } else {
-            el.classList.remove('active');
-        }
+    charElement.addEventListener('animationend', () => {
+        charElement.remove();
+        // Optional: Penalize for missed characters
     });
+
+    activeChars.push({ element: charElement, char: character });
+    gameArea.appendChild(charElement);
 }
 
-inputBox.addEventListener('input', () => {
-    const typedValue = inputBox.value;
-    if (typedValue === currentCharacter) {
-        feedbackElement.textContent = 'Correct!';
-        inputBox.value = '';
-        newCharacter();
-    } else {
-        feedbackElement.textContent = '';
+inputBox.addEventListener('input', (e) => {
+    const typedChar = e.target.value.toLowerCase();
+    if (!typedChar) return;
+
+    const target = activeChars.find(c => c.char === typedChar);
+    if (target) {
+        target.element.remove();
+        activeChars = activeChars.filter(c => c.char !== typedChar);
+        score++;
+        // Optional: Update score display
+    }
+    e.target.value = '';
+});
+
+// --- UI Event Listeners ---
+toggleKeyboardButton.addEventListener('click', () => {
+    keyboardElement.classList.toggle('hidden');
+});
+
+colorSelector.addEventListener('click', (e) => {
+    if (e.target.classList.contains('color-btn')) {
+        const newColor = e.target.dataset.color;
+        document.body.style.color = newColor;
+        // Update active button style
+        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
+        e.target.classList.add('active');
     }
 });
 
+// --- Initialization ---
 createKeyboard();
-newCharacter();
+setInterval(spawnCharacter, 1000); // Spawn a new character every second
