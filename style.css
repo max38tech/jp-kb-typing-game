@@ -28,11 +28,27 @@ body {
     position: absolute;
     font-size: 2em;
     animation: fall linear;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5); /* Add a subtle shadow */
+}
+
+.exploding {
+    animation: explode 0.3s ease-out forwards;
 }
 
 @keyframes fall {
     to {
         transform: translateY(100vh);
+    }
+}
+
+@keyframes explode {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(2.5);
+        opacity: 0;
     }
 }
 

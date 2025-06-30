@@ -151,11 +151,15 @@ function handleKeyPress(key, shiftKey) {
     const targetChar = shiftKey ? key.toUpperCase() : key.toLowerCase();
     highlightPressedKey(targetChar, shiftKey);
 
-    const target = activeChars.find(c => c.char === targetChar);
+    const targetIndex = activeChars.findIndex(c => c.char === targetChar);
 
-    if (target) {
-        target.element.remove();
-        activeChars = activeChars.filter(c => c.char !== targetChar);
+    if (targetIndex !== -1) {
+        const target = activeChars[targetIndex];
+        target.element.classList.add('exploding');
+        target.element.addEventListener('animationend', () => {
+            target.element.remove();
+        });
+        activeChars.splice(targetIndex, 1);
         score++;
         // Optional: Update score display
     }
