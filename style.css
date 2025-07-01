@@ -215,6 +215,7 @@ body {
 
 #keyboard.hidden {
     transform: translateY(100%);
+    display: none !important;
 }
 
 .keyboard-row {

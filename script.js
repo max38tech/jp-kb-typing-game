@@ -12,6 +12,7 @@ const townArea = document.getElementById('town-area');
 const healthBar = document.getElementById('health-bar');
 const gameOverOverlay = document.getElementById('game-over-overlay');
 const restartBtn = document.getElementById('restart-btn');
+const uiToggleBtn = document.getElementById('ui-toggle-btn');
 
 // Game State
 let activeChars = [];
@@ -139,11 +140,13 @@ function spawnCharacter(progress) {
         characterSet = customCharsInput.value.split('');
     }
 
+    // If shift mode is on, use only shifted characters; if off, use only unshifted
     if (isShiftMode) {
-        const shiftedChars = charSets[currentMode]
-            .map(key => shiftMap[key])
-            .filter(Boolean);
-        characterSet.push(...shiftedChars);
+        // Only use shifted characters for the current set
+        characterSet = characterSet.map(key => shiftMap[key]).filter(Boolean);
+    } else {
+        // Only use unshifted characters (filter out any that are only available as shifted)
+        characterSet = characterSet.filter(key => !Object.values(shiftMap).includes(key));
     }
 
     if (characterSet.length === 0) return;
@@ -238,96 +241,14 @@ function clearHighlights() {
 // --- UI Event Listeners ---
 toggleKeyboardButton.addEventListener('click', () => {
     keyboardElement.classList.toggle('hidden');
-    townArea.classList.toggle('hidden', !keyboardElement.classList.contains('hidden'));
+    // Only show/hide town area if it exists
+    if (townArea) {
+        townArea.classList.toggle('hidden', !keyboardElement || !keyboardElement.classList.contains('hidden'));
+    }
     updateHealthBar(); // Update visual state on toggle
 });
 
-colorSelector.addEventListener('change', (e) => {
-    document.body.style.color = e.target.value;
-});
-
-colorSelector.addEventListener('click', (e) => {
-    if (e.target.classList.contains('color-btn')) {
-        const newColor = e.target.dataset.color;
-        document.body.style.color = newColor;
-        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-    }
-});
-
-uiToggleBtn.addEventListener('click', () => {
-    uiWrapper.classList.toggle('hidden');
-    if (uiWrapper.classList.contains('hidden')) {
-        uiToggleBtn.innerHTML = '&raquo;'; // Show "open" icon
-    } else {
-        uiToggleBtn.innerHTML = '&laquo;'; // Show "close" icon
-    }
-});
-
-shiftToggleBtn.addEventListener('click', () => {
-    isShiftMode = !isShiftMode;
-    shiftToggleBtn.textContent = `Shift: ${isShiftMode ? 'On' : 'Off'}`;
-    shiftToggleBtn.classList.toggle('active', isShiftMode);
-    // Clear existing characters when mode changes
-    activeChars.forEach(c => c.element.remove());
-    activeChars = [];
-});
-
-restartBtn.addEventListener('click', startGame);
-
-modeSelector.addEventListener('change', (e) => {
-    if (e.target.value === 'custom') {
-        customCharsInput.style.display = 'inline-block';
-    } else {
-        customCharsInput.style.display = 'none';
-    }
-    // Clear existing characters when mode changes
-    activeChars.forEach(c => c.element.remove());
-    activeChars = [];
-});
-
-function startGame() {
-    gameStartTime = Date.now();
-    isGameOver = false;
-    health = 100;
-    score = 0;
-    activeChars = [];
-    updateHealthBar();
-    gameOverOverlay.classList.add('hidden');
-    document.querySelectorAll('.falling-char').forEach(el => el.remove());
-    
-    clearInterval(gameLoopInterval);
-    gameLoopInterval = setInterval(gameLoop, 1000 / 60); // Run game loop at 60fps
-}
-
-// --- UI Event Listeners ---
-toggleKeyboardButton.addEventListener('click', () => {
-    keyboardElement.classList.toggle('hidden');
-    townArea.classList.toggle('hidden', !keyboardElement.classList.contains('hidden'));
-    updateHealthBar(); // Update visual state on toggle
-});
-
-colorSelector.addEventListener('change', (e) => {
-    document.body.style.color = e.target.value;
-});
-
-colorSelector.addEventListener('click', (e) => {
-    if (e.target.classList.contains('color-btn')) {
-        const newColor = e.target.dataset.color;
-        document.body.style.color = newColor;
-        document.querySelectorAll('.color-btn').forEach(btn => btn.classList.remove('active'));
-        e.target.classList.add('active');
-    }
-});
-
-uiToggleBtn.addEventListener('click', () => {
-    uiWrapper.classList.toggle('hidden');
-    if (uiWrapper.classList.contains('hidden')) {
-        uiToggleBtn.innerHTML = '&raquo;'; // Show "open" icon
-    } else {
-        uiToggleBtn.innerHTML = '&laquo;'; // Show "close" icon
-    }
-});
+pauseBtn.addEventListener('click', togglePause);
 
 shiftToggleBtn.addEventListener('click', () => {
     isShiftMode = !isShiftMode;
