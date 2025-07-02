@@ -10,9 +10,55 @@ let health = 100;
 let fallTimeout = null;
 let fallSpeed = 3000; // ms
 
+const keyboardLayout = [
+    ['1','2','3','4','5','6','7','8','9','0','-','^'],
+    ['q','w','e','r','t','y','u','i','o','p','@','['],
+    ['a','s','d','f','g','h','j','k','l',';',':',']'],
+    ['z','x','c','v','b','n','m',',','.','/']
+];
+const onscreenKeyboard = document.getElementById('onscreen-keyboard');
+const toggleKeyboardBtn = document.getElementById('toggle-keyboard-btn');
+const keyboardContainer = document.getElementById('onscreen-keyboard-container');
+
+function buildKeyboard() {
+    onscreenKeyboard.innerHTML = '';
+    keyboardLayout.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row';
+        row.forEach(key => {
+            const keyDiv = document.createElement('div');
+            keyDiv.className = 'keyboard-key';
+            keyDiv.textContent = key;
+            keyDiv.dataset.key = key;
+            rowDiv.appendChild(keyDiv);
+        });
+        onscreenKeyboard.appendChild(rowDiv);
+    });
+}
+
 function randomChar() {
     const chars = '1234567890qwertyuiopasdfghjklzxcvbnm-^@[];:,./';
     return chars[Math.floor(Math.random() * chars.length)];
+}
+
+function highlightKey(char) {
+    document.querySelectorAll('.keyboard-key').forEach(key => {
+        if (key.dataset.key.toLowerCase() === char.toLowerCase()) {
+            key.classList.add('blink');
+        } else {
+            key.classList.remove('blink');
+        }
+    });
+}
+
+function clearKeyHighlights() {
+    document.querySelectorAll('.keyboard-key').forEach(key => key.classList.remove('blink'));
+}
+
+function setKeyboardVisible(visible) {
+    keyboardContainer.style.display = visible ? 'flex' : 'none';
+    toggleKeyboardBtn.textContent = visible ? 'Hide Keyboard' : 'Show Keyboard';
+    localStorage.setItem('showKeyboard', visible ? '1' : '0');
 }
 
 function spawnChar() {
@@ -34,12 +80,14 @@ function spawnChar() {
             missChar();
         }
     }, fallSpeed);
+    highlightKey(fallingCharValue);
 }
 
 function missChar() {
     if (fallingChar) fallingChar.remove();
     health -= 10;
     updateInfo();
+    clearKeyHighlights();
     if (health <= 0) {
         endGame();
     } else {
@@ -57,6 +105,7 @@ function explodeChar() {
             fallingChar.remove();
         }
     }, 200);
+    clearKeyHighlights();
 }
 
 function updateInfo() {
@@ -68,6 +117,7 @@ function endGame() {
     if (fallTimeout) clearTimeout(fallTimeout);
     if (fallingChar) fallingChar.remove();
     restartBtn.style.display = 'block';
+    clearKeyHighlights();
 }
 
 function startGame() {
@@ -75,6 +125,7 @@ function startGame() {
     health = 100;
     updateInfo();
     restartBtn.style.display = 'none';
+    clearKeyHighlights();
     spawnChar();
 }
 
@@ -86,6 +137,21 @@ document.addEventListener('keydown', (e) => {
         explodeChar();
         setTimeout(spawnChar, 200);
     }
+});
+
+toggleKeyboardBtn.addEventListener('click', () => {
+    const isVisible = keyboardContainer.style.display !== 'none';
+    setKeyboardVisible(!isVisible);
+});
+
+function loadKeyboardPref() {
+    const pref = localStorage.getItem('showKeyboard');
+    setKeyboardVisible(pref !== '0');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    buildKeyboard();
+    loadKeyboardPref();
 });
 
 restartBtn.addEventListener('click', startGame);
