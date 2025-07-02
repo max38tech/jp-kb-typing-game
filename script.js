@@ -288,5 +288,21 @@ document.addEventListener('keyup', () => {
 
 // --- Initialization ---
 createKeyboard();
-startGame();
+function startGame() {
+    // Initialize game state
+    activeChars = [];
+    score = 0;
+    isPaused = false;
+    health = 100;
+    isGameOver = false;
+
+    // Reset UI elements
+    gameOverOverlay.classList.add('hidden');
+    document.querySelectorAll('.falling-char').forEach(el => el.remove());
+    updateHealthBar();
+
+    // Start game loop
+    gameStartTime = Date.now();
+    gameLoopInterval = setInterval(gameLoop, 1000 / 60);
+}
 updateHealthBar();
