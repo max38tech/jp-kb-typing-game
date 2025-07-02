@@ -3,57 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Japanese Keyboard Typing Game</title>
+    <title>Japanese Keyboard Typing Tutor</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="game-world">
-        <div id="game-area">
-            <!-- Falling characters will be added here by JavaScript -->
-        </div>
-        <div id="bottom-area">
-            <div id="health-bar-container">
-                <div id="health-bar"></div>
-            </div>
-            <div id="town-area"></div>
-        </div>
+    <div id="game-area"></div>
+    <div id="info-bar">
+        <span id="score">Score: 0</span>
+        <span id="health">Health: 100</span>
     </div>
-
-    <div id="ui-wrapper">
-        <div id="ui-container">
-            <div id="settings">
-                <button id="pause-btn">Pause</button>
-                <select id="game-mode">
-                    <option value="all">All</option>
-                    <option value="top-row">Top Row</option>
-                    <option value="right-hand">Right Hand</option>
-                    <option value="custom">Custom</option>
-                </select>
-                <input type="text" id="custom-chars" placeholder="Custom" style="display:none;">
-                <button id="toggle-keyboard">Keyboard</button>
-                <button id="shift-toggle-btn">Shift: Off</button>
-                <select id="color-selector">
-                    <option value="white">White</option>
-                    <option value="yellow">Yellow</option>
-                    <option value="lime">Green</option>
-                    <option value="#ff7b7b">Red</option>
-                </select>
-            </div>
-        </div>
-        <button id="ui-toggle-btn">&laquo;</button>
-    </div>
-
-    <div id="game-over-overlay" class="hidden">
-        <div id="game-over-box">
-            <h1>Game Over</h1>
-            <button id="restart-btn">Restart</button>
-        </div>
-    </div>
-
-    <div id="pause-overlay" class="hidden">Paused</div>
-
-    <div id="keyboard"></div>
-
+    <button id="restart-btn" style="display:none;">Restart</button>
     <script src="script.js"></script>
 </body>
 </html>
